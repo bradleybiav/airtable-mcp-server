@@ -24,7 +24,8 @@
     "build": "tsc --project tsconfig.build.json && shx chmod +x dist/index.js",
     "build:watch": "nodemon --watch src --ext ts --exec \"npm run build\"",
     "build:dxt": "./build-dxt.sh",
-    "prepublishOnly": "npm run clean && npm run build"
+    "prepublishOnly": "npm run clean && npm run build",
+    "postinstall": "npm install typescript shx"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.3",
