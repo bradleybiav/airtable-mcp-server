@@ -16,7 +16,7 @@ app.get('/mcp/tools', async (req, res) => {
   try {
     const records = await base(process.env.AIRTABLE_TABLE_NAME)
       .select({
-        view: process.env.AIRTABLE_VIEW_ID,
+        view: process.env.AIRTABLE_VIEW_NAME,
         maxRecords: 5
       })
       .firstPage();
