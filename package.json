@@ -16,7 +16,7 @@
   ],
   "bin": "dist/index.js",
   "scripts": {
-    "start": "npm run build && node ./dist/index.js",
+    "start": "node ./dist/index.js",
     "test": "vitest run",
     "test:watch": "vitest --watch",
     "lint": "eslint --ext .js,.jsx,.ts,.tsx .",
@@ -25,7 +25,7 @@
     "build:watch": "nodemon --watch src --ext ts --exec \"npm run build\"",
     "build:dxt": "./build-dxt.sh",
     "prepublishOnly": "npm run clean && npm run build",
-    "postinstall": "npm install typescript shx"
+    "postinstall": "npm install"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.3",
