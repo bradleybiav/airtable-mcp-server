@@ -41,7 +41,7 @@
     "nodemon": "^3.1.7",
     "shx": "^0.3.4",
     "tsconfig-domdomegg": "^1.0.0",
-    "typescript": "^5.7.2",
+    "typescript": "^5.8.3",
     "vitest": "^3.0.7"
   },
   "eslintConfig": {
