@@ -1,17 +1,40 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
 import express from 'express';
+import dotenv from 'dotenv';
+import Airtable from 'airtable';
+
+dotenv.config();
 
 const app = express();
 
-app.get('/mcp/tools', (req, res) => {
-  res.json({
-    message: 'MCP server is alive!',
-    airtableBase: process.env.AIRTABLE_BASE_ID,
-    tableName: process.env.AIRTABLE_TABLE_NAME,
-    viewId: process.env.AIRTABLE_VIEW_ID,
-  });
+Airtable.configure({
+  apiKey: process.env.AIRTABLE_API_KEY
+});
+
+const base = Airtable.base(process.env.AIRTABLE_BASE_ID);
+
+app.get('/mcp/tools', async (req, res) => {
+  try {
+    const records = await base(process.env.AIRTABLE_TABLE_NAME)
+      .select({
+        view: process.env.AIRTABLE_VIEW_ID,
+        maxRecords: 5
+      })
+      .firstPage();
+
+    const result = records.map((record) => ({
+      id: record.id,
+      fields: record.fields
+    }));
+
+    res.json({
+      message: 'Fetched data from Airtable!',
+      records: result
+    });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 const port = process.env.PORT || 3000;
