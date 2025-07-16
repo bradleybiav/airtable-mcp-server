@@ -1,16 +1,10 @@
 import express from 'express';
-import { Request, Response, NextFunction } from "express";
+import { Request, Response } from 'express';
+import { apiKeyMiddleware } from './authMiddleware.js';
 
 const app = express();
 
-app.use( (req: Request, res: Response, next: NextFunction) => {
-  next(); return;
-  const apiKey = req.headers["x-api-key"];
-  if (apiKey !== process.env.MCP_API_KEY!) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next(); return;
-});
+app.use(apiKeyMiddleware);
 import dotenv from "dotenv";
 dotenv.config();
 if (!process.env.AIRTABLE_API_KEY!) throw new Error("Missing AIRTABLE_API_KEY");
