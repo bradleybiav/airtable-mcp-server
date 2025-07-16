@@ -1,43 +1,48 @@
-import express from 'express';
-import { Request, Response, NextFunction } from "express";
-
-const app = express();
-
-app.use( (req: Request, res: Response, next: NextFunction) => {
-  next(); return;
-  const apiKey = req.headers["x-api-key"];
-  if (apiKey !== process.env.MCP_API_KEY!) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next(); return;
-});
-import dotenv from "dotenv";
-dotenv.config();
-if (!process.env.AIRTABLE_API_KEY!) throw new Error("Missing AIRTABLE_API_KEY");
-if (!process.env.AIRTABLE_BASE_ID!) throw new Error("Missing AIRTABLE_BASE_ID");
-if (!process.env.AIRTABLE_TABLE_NAME!) throw new Error("Missing AIRTABLE_TABLE_NAME");
-if (!process.env.AIRTABLE_VIEW_ID!) throw new Error("Missing AIRTABLE_VIEW_ID");
+import express, { Request, Response, NextFunction } from 'express';
+import dotenv from 'dotenv';
 import Airtable from 'airtable';
 
 dotenv.config();
-if (!process.env.AIRTABLE_API_KEY!) throw new Error("Missing AIRTABLE_API_KEY");
-if (!process.env.AIRTABLE_BASE_ID!) throw new Error("Missing AIRTABLE_BASE_ID");
-if (!process.env.AIRTABLE_TABLE_NAME!) throw new Error("Missing AIRTABLE_TABLE_NAME");
-if (!process.env.AIRTABLE_VIEW_ID!) throw new Error("Missing AIRTABLE_VIEW_ID");
 
+const {
+  AIRTABLE_API_KEY,
+  AIRTABLE_BASE_ID,
+  AIRTABLE_TABLE_NAME,
+  AIRTABLE_VIEW_ID,
+  MCP_API_KEY,
+  PORT,
+  VITEST,
+} = process.env;
 
-Airtable.configure({
-  apiKey: process.env.AIRTABLE_API_KEY!
+if (!AIRTABLE_API_KEY) throw new Error('Missing AIRTABLE_API_KEY');
+if (!AIRTABLE_BASE_ID) throw new Error('Missing AIRTABLE_BASE_ID');
+if (!AIRTABLE_TABLE_NAME) throw new Error('Missing AIRTABLE_TABLE_NAME');
+if (!AIRTABLE_VIEW_ID) throw new Error('Missing AIRTABLE_VIEW_ID');
+
+const app = express();
+
+app.use((req: Request, res: Response, next: NextFunction) => {
+  if (MCP_API_KEY) {
+    const apiKey = req.headers['x-api-key'];
+    if (apiKey !== MCP_API_KEY) {
+      return res.status(401).json({ error: 'Unauthorized' });
+    }
+  }
+  return next();
 });
 
-const base = Airtable.base(process.env.AIRTABLE_BASE_ID!);
+Airtable.configure({
+  apiKey: AIRTABLE_API_KEY,
+});
 
-app.get('/mcp/tools', async  (req: Request, res: Response) => {
+const base = Airtable.base(AIRTABLE_BASE_ID);
+
+app.get('/mcp/tools', async (req: Request, res: Response) => {
   try {
-    const records = await base(process.env.AIRTABLE_TABLE_NAME!)
+    const records = await base(AIRTABLE_TABLE_NAME)
       .select({
-        view: process.env.AIRTABLE_VIEW_ID!,
-        maxRecords: 5
+        view: AIRTABLE_VIEW_ID,
+        maxRecords: 5,
       })
       .firstPage();
 
@@ -57,7 +62,11 @@ app.get('/mcp/tools', async  (req: Request, res: Response) => {
   }
 });
 
-const port = process.env.PORT! || 3000;
-app.listen(port, () => {
-  console.log(`✅ MCP Server running on port ${port}`);
-});
+if (!VITEST) {
+  const port = Number(PORT) || 3000;
+  app.listen(port, () => {
+    console.log(`✅ MCP Server running on port ${port}`);
+  });
+}
+
+export default app;
